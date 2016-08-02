@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Jurassic.Library
 {
@@ -8,7 +7,7 @@ namespace Jurassic.Library
     /// </summary>
     public partial class ObjectConstructor : ClrStubFunction
     {
-        
+
         //     INITIALIZATION
         //_________________________________________________________________________________________
 
@@ -49,6 +48,8 @@ namespace Jurassic.Library
         {
             if (obj == null || obj == Undefined.Value || obj == Null.Value)
                 return this.Engine.Object.Construct();
+            if (obj is IDictionary<string, object>)
+                return TypeConverter.ToObjectInstance(this.Engine, (IDictionary<string, object>)obj);
             return TypeConverter.ToObject(this.Engine, obj);
         }
 
