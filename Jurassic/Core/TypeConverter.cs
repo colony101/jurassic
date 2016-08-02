@@ -1,7 +1,6 @@
-﻿using System;
+﻿using Jurassic.Library;
+using System;
 using System.Collections.Generic;
-using System.Text;
-using Jurassic.Library;
 
 namespace Jurassic
 {
@@ -234,6 +233,8 @@ namespace Jurassic
                 result = engine.String.Construct((string)value);
             else if (value is ConcatenatedString)
                 result = engine.String.Construct(value.ToString());
+            else if (value is IDictionary<string, object>)
+                result = engine.Object.Construct(value);
             else
                 throw new ArgumentException(string.Format("Cannot convert object of type '{0}' to an object.", value.GetType()), "value");
             result.IsExtensible = false;
@@ -292,10 +293,10 @@ namespace Jurassic
             double num = ToNumber(value);
             if (num > 2147483647.0)
                 return 2147483647;
-            #pragma warning disable 1718
+#pragma warning disable 1718
             if (num != num)
                 return 0;
-            #pragma warning restore 1718
+#pragma warning restore 1718
             return (int)num;
         }
 
@@ -364,6 +365,27 @@ namespace Jurassic
         }
 
         /// <summary>
+        /// Converts a dictionary to an object instance.
+        /// </summary>
+        /// <param name="engine"> The script engine used to create new objects. </param>
+        /// <param name="value"> The value to convert. </param>
+        /// <returns> An object instance. </returns>
+        public static ObjectInstance ToObjectInstance(ScriptEngine engine, IDictionary<string, object> value)
+        {
+            var objectInstance = engine.Object.Construct();
+
+            foreach (var key in value.Keys)
+            {
+                if (value[key] is IDictionary<string, object>)
+                    objectInstance[key] = ToObjectInstance(engine, (IDictionary<string, object>)value[key]);
+                else
+                    objectInstance[key] = value[key];
+            }
+
+            return objectInstance;
+        }
+
+        /// <summary>
         /// Utility method to convert an object array to a typed array.
         /// </summary>
         /// <typeparam name="T"> The type to convert to. </typeparam>
@@ -376,7 +398,7 @@ namespace Jurassic
             if (offset >= args.Length)
                 return new T[0];
             var result = new T[args.Length - offset];
-            for (int i = 0; i < result.Length; i ++)
+            for (int i = 0; i < result.Length; i++)
             {
                 result[i] = ConvertTo<T>(engine, args[offset + i]);
             }
