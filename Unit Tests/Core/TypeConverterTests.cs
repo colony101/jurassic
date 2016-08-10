@@ -1,6 +1,7 @@
 ﻿using Jurassic;
 using Jurassic.Library;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 using System.Dynamic;
 
 namespace UnitTests
@@ -471,14 +472,39 @@ namespace UnitTests
             Assert.IsInstanceOfType(TypeConverter.ToObject(engine, "test"), typeof(StringInstance));
             Assert.AreEqual("test", TypeConverter.ToObject(engine, "test").CallMemberFunction("valueOf"));
 
-            dynamic expandoObject = new ExpandoObject();
-            expandoObject.name = "Jurassic";
-            Assert.IsInstanceOfType(TypeConverter.ToObject(engine, expandoObject), typeof(ObjectInstance));
-            Assert.AreEqual("Jurassic", TypeConverter.ToObject(engine, expandoObject)["name"]);
-
             // ToObject returns objects unaltered.
             var obj = TypeConverter.ToObject(engine, engine.Boolean.Construct(true));
             Assert.AreSame(obj, TypeConverter.ToObject(engine, obj));
+        }
+
+        [TestMethod]
+        public void ExpandoToObject()
+        {
+            var engine = new ScriptEngine();
+
+            dynamic expandoObject = new ExpandoObject();
+            expandoObject.name = "Jurassic";
+            dynamic item1 = new ExpandoObject();
+            item1.name = "test1";
+            dynamic item2 = new ExpandoObject();
+            item2.name = "test2";
+            expandoObject.array1 = new List<ExpandoObject> { item1, item2 };
+            expandoObject.array2 = new[] { 1, 2, 3 };
+            var objectInstance = TypeConverter.ToObject(engine, expandoObject);
+
+            Assert.IsInstanceOfType(objectInstance, typeof(ObjectInstance));
+            Assert.AreEqual("Jurassic", objectInstance["name"]);
+            Assert.IsInstanceOfType(objectInstance["array1"], typeof(ArrayInstance));
+            Assert.AreEqual(2, (int)objectInstance["array1"].Length);
+            Assert.IsInstanceOfType(objectInstance["array1"][0], typeof(ObjectInstance));
+            Assert.AreEqual("test1", objectInstance["array1"][0]["name"]);
+            Assert.IsInstanceOfType(objectInstance["array1"][1], typeof(ObjectInstance));
+            Assert.AreEqual("test2", objectInstance["array1"][1]["name"]);
+            Assert.IsInstanceOfType(objectInstance["array2"], typeof(ArrayInstance));
+            Assert.AreEqual(3, (int)objectInstance["array2"].Length);
+            Assert.AreEqual(1, objectInstance["array2"][0]);
+            Assert.AreEqual(2, objectInstance["array2"][1]);
+            Assert.AreEqual(3, objectInstance["array2"][2]);
         }
     }
 }

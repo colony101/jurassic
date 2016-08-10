@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Jurassic.Library
 {
@@ -79,6 +78,17 @@ namespace Jurassic.Library
         public ArrayInstance Call(params object[] elements)
         {
             return Construct(elements);
+        }
+
+        /// <summary>
+        /// Creates a new Array instance and initializes the contents of the array.
+        /// Called when the new expression is used on this object, e.g. var x = new Array(length).
+        /// This overload is to fix an issue in Mono when passing empty arguments to params object[].
+        /// </summary>
+        [JSConstructorFunction]
+        public ArrayInstance Construct()
+        {
+            return New(new object[0]);
         }
 
         /// <summary>

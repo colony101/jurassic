@@ -1,6 +1,9 @@
 ﻿using Jurassic.Library;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Dynamic;
+using System.Linq;
 
 namespace Jurassic
 {
@@ -378,11 +381,31 @@ namespace Jurassic
             {
                 if (value[key] is IDictionary<string, object>)
                     objectInstance[key] = ToObjectInstance(engine, (IDictionary<string, object>)value[key]);
+                else if (value[key] is IList)
+                    objectInstance[key] = ToArrayInstance(engine, (IList)value[key]);
                 else
                     objectInstance[key] = value[key];
             }
 
             return objectInstance;
+        }
+
+        /// <summary>
+        /// Converts a list to an array instance.
+        /// </summary>
+        /// <param name="engine"> The script engine used to create new objects. </param>
+        /// <param name="list"> The list to convert. </param>
+        /// <returns> An array instance. </returns>
+        public static ArrayInstance ToArrayInstance(ScriptEngine engine, IList list)
+        {
+            if (!(list is IList<ExpandoObject>))
+                return engine.Array.Construct(list.Cast<object>().ToArray());
+
+            var objectInstances = (from object value
+                                   in list
+                                   select ToObjectInstance(engine, (IDictionary<string, object>)value))
+                                   .ToList();
+            return engine.Array.Construct(objectInstances.Cast<object>().ToArray());
         }
 
         /// <summary>
