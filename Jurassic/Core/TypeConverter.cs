@@ -2,8 +2,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
 
 namespace Jurassic
 {
@@ -398,14 +396,19 @@ namespace Jurassic
         /// <returns> An array instance. </returns>
         public static ArrayInstance ToArrayInstance(ScriptEngine engine, IList list)
         {
-            if (!(list is IList<ExpandoObject>))
-                return engine.Array.Construct(list.Cast<object>().ToArray());
+            var objects = new List<object>();
 
-            var objectInstances = (from object value
-                                   in list
-                                   select ToObjectInstance(engine, (IDictionary<string, object>)value))
-                                   .ToList();
-            return engine.Array.Construct(objectInstances.Cast<object>().ToArray());
+            foreach (var item in list)
+            {
+                if (item is IDictionary<string, object>)
+                    objects.Add(ToObjectInstance(engine, (IDictionary<string, object>)item));
+                else if (item is IList)
+                    objects.Add(ToArrayInstance(engine, (IList)item));
+                else
+                    objects.Add(item);
+            }
+
+            return engine.Array.Construct(objects.ToArray());
         }
 
         /// <summary>
