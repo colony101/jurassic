@@ -171,6 +171,7 @@ namespace UnitTests
             Assert.AreEqual(double.NaN, TypeConverter.ToNumber(engine.String.Construct("test")));
             Assert.AreEqual(1.9, TypeConverter.ToNumber(engine.String.Construct("1.9")));
             Assert.AreEqual(16.0, TypeConverter.ToNumber(engine.String.Construct("0x10")));
+            Assert.AreEqual(123456789012, TypeConverter.ToNumber("123456789012"));
         }
 
         [TestMethod]

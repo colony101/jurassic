@@ -104,6 +104,8 @@ namespace Jurassic
         {
             if (value is double)
                 return (double)value;
+            if (value is long)
+                return (double)(long)value;
             if (value is int)
                 return (double)(int)value;
             if (value is uint)
@@ -228,6 +230,8 @@ namespace Jurassic
                 result = engine.Number.Construct((int)value);
             else if (value is uint)
                 result = engine.Number.Construct((uint)value);
+            else if (value is long)
+                result = engine.Number.Construct((long)value);
             else if (value is double)
                 result = engine.Number.Construct((double)value);
             else if (value is string)
