@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Jurassic.Library
 {
@@ -65,6 +64,16 @@ namespace Jurassic.Library
         public DateInstance Construct(string dateStr)
         {
             return new DateInstance(this.InstancePrototype, dateStr);
+        }
+
+        /// <summary>
+        /// Creates a new Date object from a DateTime value.
+        /// </summary>
+        /// <param name="dateTime"> A DateTime value. </param>
+        public DateInstance Construct(DateTime dateTime)
+        {
+            return new DateInstance(this.InstancePrototype, dateTime.Year, dateTime.Month - 1, dateTime.Day, dateTime.Hour,
+                dateTime.Minute, dateTime.Second, dateTime.Millisecond);
         }
 
         /// <summary>

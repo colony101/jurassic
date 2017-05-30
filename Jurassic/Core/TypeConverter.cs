@@ -385,6 +385,8 @@ namespace Jurassic
                     objectInstance[key] = ToObjectInstance(engine, (IDictionary<string, object>)value[key]);
                 else if (value[key] is IList)
                     objectInstance[key] = ToArrayInstance(engine, (IList)value[key]);
+                else if (value[key] is DateTime)
+                    objectInstance[key] = engine.Date.Construct((DateTime)value[key]);
                 else
                     objectInstance[key] = value[key];
             }
@@ -408,6 +410,8 @@ namespace Jurassic
                     objects.Add(ToObjectInstance(engine, (IDictionary<string, object>)item));
                 else if (item is IList)
                     objects.Add(ToArrayInstance(engine, (IList)item));
+                else if (item is DateTime)
+                    objects.Add(engine.Date.Construct((DateTime)item));
                 else
                     objects.Add(item);
             }

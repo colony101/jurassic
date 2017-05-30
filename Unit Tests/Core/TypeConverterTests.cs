@@ -1,6 +1,7 @@
 ﻿using Jurassic;
 using Jurassic.Library;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Dynamic;
 
@@ -485,6 +486,7 @@ namespace UnitTests
 
             dynamic expandoObject = new ExpandoObject();
             expandoObject.name = "Jurassic";
+            expandoObject.date = new DateTime(2010, 1, 31, 0, 0, 0, 0);
             dynamic item1 = new ExpandoObject();
             item1.name = "test1";
             dynamic item2 = new ExpandoObject();
@@ -494,7 +496,18 @@ namespace UnitTests
             var objectInstance = TypeConverter.ToObject(engine, expandoObject);
 
             Assert.IsInstanceOfType(objectInstance, typeof(ObjectInstance));
+
             Assert.AreEqual("Jurassic", objectInstance["name"]);
+
+            Assert.IsInstanceOfType(objectInstance["date"], typeof(DateInstance));
+            Assert.AreEqual(((DateTime)expandoObject.date).Year, ((DateInstance)objectInstance["date"]).GetYear() + 1900);
+            Assert.AreEqual(((DateTime)expandoObject.date).Month, ((DateInstance)objectInstance["date"]).GetMonth() + 1);
+            Assert.AreEqual(((DateTime)expandoObject.date).Day, ((DateInstance)objectInstance["date"]).GetDate());
+            Assert.AreEqual(((DateTime)expandoObject.date).Hour, ((DateInstance)objectInstance["date"]).GetHours());
+            Assert.AreEqual(((DateTime)expandoObject.date).Minute, ((DateInstance)objectInstance["date"]).GetMinutes());
+            Assert.AreEqual(((DateTime)expandoObject.date).Second, ((DateInstance)objectInstance["date"]).GetSeconds());
+            Assert.AreEqual(((DateTime)expandoObject.date).Millisecond, ((DateInstance)objectInstance["date"]).GetMilliseconds());
+
             Assert.IsInstanceOfType(objectInstance["array1"], typeof(ArrayInstance));
             Assert.AreEqual(2, (int)objectInstance["array1"].Length);
             Assert.IsInstanceOfType(objectInstance["array1"][0], typeof(ObjectInstance));
