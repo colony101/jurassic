@@ -84,6 +84,8 @@ namespace Jurassic
                 return ((int)value) != 0;
             if (value is uint)
                 return ((uint)value) != 0;
+            if (value is long)
+                return (long)value != 0;
             if (value is double)
                 return ((double)value) != 0 && double.IsNaN((double)value) == false;
             if (value is string)
@@ -104,12 +106,12 @@ namespace Jurassic
         {
             if (value is double)
                 return (double)value;
-            if (value is long)
-                return (double)(long)value;
             if (value is int)
                 return (double)(int)value;
             if (value is uint)
                 return (double)(uint)value;
+            if (value is long)
+                return (double)(long)value;
             if (value == null || value == Undefined.Value)
                 return double.NaN;
             if (value == Null.Value)
@@ -152,6 +154,8 @@ namespace Jurassic
                 return ((int)value).ToString();
             if (value is uint)
                 return ((uint)value).ToString();
+            if (value is long)
+                return ((long)value).ToString();
             if (value is double)
             {
                 // Check if the value is in the cache.

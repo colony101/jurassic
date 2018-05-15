@@ -191,6 +191,11 @@ namespace Jurassic.Library
                 result.Append(((int)value).ToString());
                 return;
             }
+            if (value is long)
+            {
+                result.Append(((long)value).ToString());
+                return;
+            }
 
             // Serialize an array.
             if (value is ArrayInstance)
@@ -338,7 +343,7 @@ namespace Jurassic.Library
             if (serializedPropertyCount > 0)
                 result.Append(previousSeparator);
             result.Append('}');
-            
+
             // Remove this object from the stack.
             this.objectStack.Pop();
 
