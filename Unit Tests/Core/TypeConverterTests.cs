@@ -491,6 +491,7 @@ namespace UnitTests
             item1.name = "test1";
             dynamic item2 = new ExpandoObject();
             item2.name = "test2";
+            item2.value = (long)1;
             expandoObject.array1 = new List<ExpandoObject> { item1, item2 };
             expandoObject.array2 = new[] { 1, 2, 3 };
             var objectInstance = TypeConverter.ToObject(engine, expandoObject);
@@ -514,6 +515,8 @@ namespace UnitTests
             Assert.AreEqual("test1", objectInstance["array1"][0]["name"]);
             Assert.IsInstanceOfType(objectInstance["array1"][1], typeof(ObjectInstance));
             Assert.AreEqual("test2", objectInstance["array1"][1]["name"]);
+            Assert.IsInstanceOfType(objectInstance["array1"][1]["value"], typeof(double));
+            Assert.AreEqual(1, objectInstance["array1"][1]["value"]);
             Assert.IsInstanceOfType(objectInstance["array2"], typeof(ArrayInstance));
             Assert.AreEqual(3, (int)objectInstance["array2"].Length);
             Assert.AreEqual(1, objectInstance["array2"][0]);
