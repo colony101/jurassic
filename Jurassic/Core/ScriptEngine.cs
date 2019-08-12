@@ -658,7 +658,7 @@ namespace Jurassic
 
         //     EXECUTION
         //_________________________________________________________________________________________
-        
+
         /// <summary>
         /// Compiles the given source code and returns it in a form that can be executed many
         /// times.
@@ -729,7 +729,7 @@ namespace Jurassic
                 source,                             // The source code.
                 CreateOptions(),                    // The compiler options.
                 this.Global);                       // The value of the "this" keyword.
-            
+
             // Parse
             if (this.ParsingStarted != null)
                 this.ParsingStarted(this, EventArgs.Empty);
@@ -933,59 +933,7 @@ namespace Jurassic
             if (value == null)
                 throw new ArgumentNullException("value");
 
-            if (value == null)
-                value = Null.Value;
-            else
-            {
-                switch (Type.GetTypeCode(value.GetType()))
-                {
-                    case TypeCode.Boolean:
-                        break;
-                    case TypeCode.Byte:
-                        value = (int)(byte)value;
-                        break;
-                    case TypeCode.Char:
-                        value = new string((char)value, 1);
-                        break;
-                    case TypeCode.Decimal:
-                        value = decimal.ToDouble((decimal)value);
-                        break;
-                    case TypeCode.Double:
-                        break;
-                    case TypeCode.Int16:
-                        value = (int)(short)value;
-                        break;
-                    case TypeCode.Int32:
-                        break;
-                    case TypeCode.Int64:
-                        value = (double)(long)value;
-                        break;
-                    case TypeCode.Object:
-                        if (value is Type)
-                            value = ClrStaticTypeWrapper.FromCache(this, (Type)value);
-                        else if ((value is ObjectInstance) == false)
-                            value = new ClrInstanceWrapper(this, value);
-                        break;
-                    case TypeCode.SByte:
-                        value = (int)(sbyte)value;
-                        break;
-                    case TypeCode.Single:
-                        value = (double)(float)value;
-                        break;
-                    case TypeCode.String:
-                        break;
-                    case TypeCode.UInt16:
-                        value = (int)(ushort)value;
-                        break;
-                    case TypeCode.UInt32:
-                        break;
-                    case TypeCode.UInt64:
-                        value = (double)(ulong)value;
-                        break;
-                    default:
-                        throw new ArgumentException(string.Format("Cannot store value of type {0}.", value.GetType()), "value");
-                }
-            }
+            value = TypeConverter.ToSupportedType(this, value);
             this.Global.SetPropertyValue(variableName, value, true);
         }
 

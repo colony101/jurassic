@@ -377,22 +377,30 @@ namespace Jurassic
         /// Converts a dictionary to an object instance.
         /// </summary>
         /// <param name="engine"> The script engine used to create new objects. </param>
-        /// <param name="value"> The value to convert. </param>
+        /// <param name="dictionary"> The value to convert. </param>
         /// <returns> An object instance. </returns>
-        public static ObjectInstance ToObjectInstance(ScriptEngine engine, IDictionary<string, object> value)
+        public static ObjectInstance ToObjectInstance(ScriptEngine engine, IDictionary<string, object> dictionary)
         {
             var objectInstance = engine.Object.Construct();
 
-            foreach (var key in value.Keys)
+            foreach (var key in dictionary.Keys)
             {
-                if (value[key] is IDictionary<string, object>)
-                    objectInstance[key] = ToObjectInstance(engine, (IDictionary<string, object>)value[key]);
-                else if (value[key] is IList)
-                    objectInstance[key] = ToArrayInstance(engine, (IList)value[key]);
-                else if (value[key] is DateTime)
-                    objectInstance[key] = engine.Date.Construct((DateTime)value[key]);
-                else
-                    objectInstance[key] = value[key];
+                var value = dictionary[key];
+                switch (value)
+                {
+                    case IDictionary<string, object> dictionaryValue:
+                        objectInstance[key] = ToObjectInstance(engine, dictionaryValue);
+                        break;
+                    case IList list:
+                        objectInstance[key] = ToArrayInstance(engine, list);
+                        break;
+                    case DateTime dateTime:
+                        objectInstance[key] = engine.Date.Construct(dateTime);
+                        break;
+                    default:
+                        objectInstance[key] = ToSupportedType(engine, value);
+                        break;
+                }
             }
 
             return objectInstance;
@@ -421,6 +429,71 @@ namespace Jurassic
             }
 
             return engine.Array.Construct(objects.ToArray());
+        }
+
+        /// <summary>
+        /// Converts the desired value to a supported type.
+        /// </summary>
+        /// <param name="engine"> The script engine used to create new objects. </param>
+        /// <param name="value"> The desired value. </param>
+        /// <returns> The converted value. </returns>
+        internal static object ToSupportedType(ScriptEngine engine, object value)
+        {
+            if (value == null)
+                value = Null.Value;
+            else
+            {
+                switch (Type.GetTypeCode(value.GetType()))
+                {
+                    case TypeCode.Boolean:
+                        break;
+                    case TypeCode.Byte:
+                        value = (int)(byte)value;
+                        break;
+                    case TypeCode.Char:
+                        value = new string((char)value, 1);
+                        break;
+                    case TypeCode.Decimal:
+                        value = decimal.ToDouble((decimal)value);
+                        break;
+                    case TypeCode.Double:
+                        break;
+                    case TypeCode.Int16:
+                        value = (int)(short)value;
+                        break;
+                    case TypeCode.Int32:
+                        break;
+                    case TypeCode.Int64:
+                        value = (double)(long)value;
+                        break;
+                    case TypeCode.Object:
+                        if (value is Type)
+                            value = ClrStaticTypeWrapper.FromCache(engine, (Type)value);
+                        else if ((value is ObjectInstance) == false)
+                            value = new ClrInstanceWrapper(engine, value);
+                        break;
+                    case TypeCode.SByte:
+                        value = (int)(sbyte)value;
+                        break;
+                    case TypeCode.Single:
+                        value = (double)(float)value;
+                        break;
+                    case TypeCode.String:
+                        break;
+                    case TypeCode.UInt16:
+                        value = (int)(ushort)value;
+                        break;
+                    case TypeCode.UInt32:
+                        break;
+                    case TypeCode.UInt64:
+                        value = (double)(ulong)value;
+                        break;
+                    default:
+                        throw new ArgumentException(string.Format("Cannot convert value of type {0}.", value.GetType()), "value");
+                }
+            }
+
+            return value;
         }
 
         /// <summary>
